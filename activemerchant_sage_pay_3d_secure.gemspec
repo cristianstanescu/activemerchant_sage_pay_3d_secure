@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
                   'required to process SagePay 3D Secure requests and responses'
   s.author = 'Cristian Stănescu'
   s.email = 'cristianstanescu@gmail.com'
-  s.files = Dir['CHANGELOG', 'README.md', 'lib/**/*']
+  s.files = Dir['CHANGELOG', 'README.md', 'LICENSE.md', 'lib/**/*']
   s.homepage =
     'https://github.com/cristianstanescu/active_merchant_sage_pay_3d_secure'
   s.required_ruby_version = '>= 2'
