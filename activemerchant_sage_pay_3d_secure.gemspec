@@ -15,4 +15,6 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'activemerchant', '~> 1.59'
   s.add_development_dependency 'rake', '~> 0'
   s.add_development_dependency 'test-unit', '~> 3'
+  s.add_development_dependency 'mocha', '~> 1'
+  s.add_development_dependency 'pry'
 end
