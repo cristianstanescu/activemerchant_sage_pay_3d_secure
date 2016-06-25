@@ -65,7 +65,8 @@ module ActiveMerchantSagePay3dSecure
             ssl_post(url_with_3d_secure_endpoint, authorization_results)
           )
 
-          success = response["Status"] == ActiveMerchant::Billing::SagePayGateway::APPROVED
+          # 'OK' should be ActiveMerchant::Billing::SagePayGateway::APPROVED
+          success = response["Status"] == 'OK'
 
           Response.new(success, message_from(response), response,
             :test => test?,
