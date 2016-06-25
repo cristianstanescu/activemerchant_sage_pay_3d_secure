@@ -1,6 +1,6 @@
 require 'activemerchant'
-require 'active_merchant_sage_pay_3d_secure/active_merchant/billing/response'
-require 'active_merchant_sage_pay_3d_secure/active_merchant/billing/gateways/sage_pay'
+require 'active_merchant_sage_pay_3d_secure/response'
+require 'active_merchant_sage_pay_3d_secure/sage_pay'
 
 # Extending classes based on the pattern described at:
 # http://www.justinweiss.com/articles/3-ways-to-monkey-patch-without-making-a-mess/
@@ -10,9 +10,9 @@ require 'active_merchant_sage_pay_3d_secure/active_merchant/billing/gateways/sag
 # include them one group at a time"
 
 ActiveMerchant::Billing::Response.include(
-  ActiveMerchantSagePay3dSecure::ActiveMerchant::Billing::Response
+  ActiveMerchantSagePay3dSecure::Response
 )
 
 ActiveMerchant::Billing::SagePayGateway.include(
-  ActiveMerchantSagePay3dSecure::ActiveMerchant::Billing::SagePayGateway
+  ActiveMerchantSagePay3dSecure::SagePay
 )
