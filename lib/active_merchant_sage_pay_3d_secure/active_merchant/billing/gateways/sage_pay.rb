@@ -84,7 +84,7 @@ module ActiveMerchantSagePay3dSecure
 
         # TODO: move to ActiveMerchant
         def gateway_service_url
-          "#{test? ? self.test_url : self.live_url}/#{endpoint}.vsp"
+          test? ? self.test_url : self.live_url
         end
 
         def post_data_3d_authorization_results(parameters)
