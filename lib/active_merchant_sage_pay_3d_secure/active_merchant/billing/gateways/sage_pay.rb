@@ -65,7 +65,9 @@ module ActiveMerchantSagePay3dSecure
             ssl_post(url_with_3d_secure_endpoint, authorization_results)
           )
 
-          Response.new(response["Status"] == APPROVED, message_from(response), response,
+          success = response["Status"] == ActiveMerchant::Billing::SagePayGateway::APPROVED
+
+          Response.new(success, message_from(response), response,
             :test => test?,
             :authorization => authorization_from(response, options, :authenticate_3d_secure),
             :avs_result => {
