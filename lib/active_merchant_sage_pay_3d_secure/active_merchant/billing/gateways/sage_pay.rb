@@ -41,8 +41,22 @@ module ActiveMerchantSagePay3dSecure
         #   )
         # end
 
-        def authenticate_3d_secure(order_id, md, pares)
-          authorization_results = post_data_authorization_results(
+        # response = parse( ssl_post(url_for(action), post_data(action, parameters)) )
+
+        # Response.new(response["Status"] == APPROVED, message_from(response), response,
+        #   :test => test?,
+        #   :authorization => authorization_from(response, parameters, action),
+        #   :avs_result => {
+        #     :street_match => AVS_CVV_CODE[ response["AddressResult"] ],
+        #     :postal_match => AVS_CVV_CODE[ response["PostCodeResult"] ],
+        #   },
+        #   :cvv_result => AVS_CVV_CODE[ response["CV2Result"] ]
+        # )
+
+        def authenticate_3d_secure(md, pares, options)
+          requires!(options, :order_id)
+
+          authorization_results = post_data_3d_authorization_results(
             MD: md,
             PARes: pares
           )
@@ -53,7 +67,7 @@ module ActiveMerchantSagePay3dSecure
 
           Response.new(response["Status"] == APPROVED, message_from(response), response,
             :test => test?,
-            :authorization => authorization_from(response, parameters, action),
+            :authorization => authorization_from(response, options, :authenticate_3d_secure),
             :avs_result => {
               :street_match => AVS_CVV_CODE[ response["AddressResult"] ],
               :postal_match => AVS_CVV_CODE[ response["PostCodeResult"] ],
