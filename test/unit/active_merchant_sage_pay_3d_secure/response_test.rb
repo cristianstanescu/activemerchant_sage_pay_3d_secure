@@ -1,5 +1,6 @@
 require 'test_helper'
 
+# Test additions to ActiveMerchant::Billing::Response
 class ResponseTest < Test::Unit::TestCase
   def test_authentication_3d_secure
     response =
@@ -13,4 +14,3 @@ class ResponseTest < Test::Unit::TestCase
     assert_equal false, response.authentication_3d_secure?
   end
 end
-  

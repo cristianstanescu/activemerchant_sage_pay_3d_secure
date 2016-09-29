@@ -4,10 +4,10 @@ require 'rake/testtask'
 # Copied/Kept from ActiveMerchant
 task :tag_release do
   system "git tag 'v#{ActiveMerchantSagePay3dSecure::VERSION}'"
-  system "git push --tags"
+  system 'git push --tags'
 end
 
-desc "Run the unit test suite"
+desc 'Run the unit test suite'
 task default: 'test:units'
 task test: 'test:units'
 

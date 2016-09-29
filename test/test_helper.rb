@@ -15,6 +15,7 @@ if ENV['DEBUG_ACTIVE_MERCHANT'] == 'true'
 end
 
 module ActiveMerchant
+  # Common test support methods
   module Fixtures
     def default_expiration_date
       @default_expiration_date ||= Date.new((Time.now.year + 1), 9, 30)
