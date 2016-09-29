@@ -1,58 +1,17 @@
-module ActiveMerchantSagePay3dSecure  
+module ActiveMerchantSagePay3dSecure
+  # Module to be included in ActiveMerchant::Billing::SagePayGateway. It relies
+  # heavily on the ActvieMerchant implementation and contrary to best practices
+  # also on private methods.
+  #
+  # The reason is that ActiveMerchant::Billing::SagePayGateway doesn't provide
+  # and easy to to extend and reuse.
   module SagePay
-    # remove_const ActiveMerchant::Billing::SagePayGateway::TRANSACTIONS
-
-    # ActiveMerchant::Billing::SagePayGateway.const_set('TRANSACTIONS', {
-    #   purchase: 'PAYMENT',
-    #   credit: 'REFUND',
-    #   authorization: 'DEFERRED',
-    #   capture: 'RELEASE',
-    #   void: 'VOID',
-    #   abort: 'ABORT',
-    #   store: 'TOKEN',
-    #   unstore: 'REMOVETOKEN',
-    #   authenticate_3d_secure: 'direct3dcallback'
-    # })
-
-    # def initialize(options = {})
-    #   self.class::TRANSACTIONS[:authenticate_3d_secure] = 'direct3dcallback'
-    #   requires!(options, :login)
-    #   super
-    # end
-
-    # def authenticate_3d_secure(md, pares)
-    #   # post = {}
-    #   # add_pair(post, :Currency, currency, required: true)
-
-    #   authorization_results = {
-    #     MD: md,
-    #     PARes: pares
-    #   }
-
-    #   response = parse(
-    #     ssl_post(url_with_3d_secure_endpoint, post_data(authorization_results))
-    #   )
-
-    #   build_active_merchant_response(
-    #     response,
-    #     authorization: authorization_from(response, {}, 'authenticate_3d_secure'),
-    #   )
-    # end
-
-    # response = parse( ssl_post(url_for(action), post_data(action, parameters)) )
-
-    # Response.new(response["Status"] == APPROVED, message_from(response), response,
-    #   :test => test?,
-    #   :authorization => authorization_from(response, parameters, action),
-    #   :avs_result => {
-    #     :street_match => AVS_CVV_CODE[ response["AddressResult"] ],
-    #     :postal_match => AVS_CVV_CODE[ response["PostCodeResult"] ],
-    #   },
-    #   :cvv_result => AVS_CVV_CODE[ response["CV2Result"] ]
-    # )
-
     def authenticate_3d_secure(md, pares, options)
       requires!(options, :order_id)
+
+      # VendorTxCode is required for capture authorization
+      parameters = {}
+      add_pair(parameters, :VendorTxCode, sanitize_order_id(options[:order_id]), required: true)
 
       authorization_results = post_data_3d_authorization_results(
         MD: md,
@@ -63,26 +22,35 @@ module ActiveMerchantSagePay3dSecure
         ssl_post(url_with_3d_secure_endpoint, authorization_results)
       )
 
-      success = response["Status"] == self.class::APPROVED
-
-      ActiveMerchant::Billing::Response.new(success, message_from(response), response,
-        :test => test?,
-        :authorization => authorization_from(response, options, :authenticate_3d_secure),
-        :avs_result => {
-          :street_match => avs_cvv_code[response["AddressResult"]],
-          :postal_match => avs_cvv_code[response["PostCodeResult"]],
-        },
-        :cvv_result => avs_cvv_code[response["CV2Result"]]
+      ActiveMerchant::Billing::Response.new(
+        response["Status"] == self.class::APPROVED,
+        message_from(response),
+        response,
+        build_response_options(response, parameters)
       )
     end
 
     private
 
+    def build_response_options(response, parameters)
+      authorization_string =
+        authorization_from(response, parameters, :authenticate_3d_secure)
+
+      {
+        test: test?,
+        authorization: authorization_string,
+        avs_result: {
+          street_match: avs_cvv_code[response['AddressResult']],
+          postal_match: avs_cvv_code[response['PostCodeResult']],
+        },
+        cvv_result: avs_cvv_code[response['CV2Result']]
+      }
+    end
+
     def url_with_3d_secure_endpoint
       "#{gateway_service_url}/direct3dcallback.vsp"
     end
 
-    # TODO: move to ActiveMerchant
     def gateway_service_url
       test? ? self.test_url : self.live_url
     end
@@ -94,7 +62,7 @@ module ActiveMerchantSagePay3dSecure
     end
 
     def avs_cvv_code
-      @avs_cvv_code ||= self.class::AVS_CVV_CODE
+      self.class::AVS_CVV_CODE
     end
   end
 end
